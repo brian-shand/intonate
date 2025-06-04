@@ -1,0 +1,7 @@
+# Ignore output files
+output/
+
+# macOS and Python junk
+.DS_Store
+__pycache__/
+*.pyc

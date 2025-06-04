@@ -1,0 +1,89 @@
+rules:
+  - name: heading_level_1
+    # Match H1 lines that start with '# '
+    match: "^# (.+)"
+    # Insert a 500ms pause before the captured heading text
+    replacement: '<break time=\"500ms\"/>\1'
+    # Documentation
+    description: "Add a longer 500ms pause before H1 (Title) headings"
+
+
+  - name: heading_level_2
+    # Match H2 lines that start with '## '
+    match: "^## (.+)"
+    # Insert a 300ms pause before the subheading
+    replacement: '<break time=\"300ms\"/>\1'
+    # Documentation
+    description: "Add a quicker 300ms pause before H2 (subheading -large) headings"
+
+
+  - name: heading_level_3
+    # Match H3 lines that start with '### '
+    match: "^### (.+)"
+    # Insert a 200ms pause before the smaller subheading
+    replacement: '<break time=\"200ms\"/>\1'
+    # Documentation
+    description: "Add a quick 200ms pause before H3 (subheading -smaller) headings"
+
+
+  - name: blockquote
+    # Match lines that start with '>' followed by optional space and content
+    match: "^> ?(.+)"
+    # Lower pitch and slow slightly for quoted tone
+    replacement: '<prosody pitch=\"low\" rate=\"slow\">\1</prosody>'
+    # Documentation
+    description: "Use lower pitch and slower rate for blockquote text"
+
+
+  - name: ordered_list
+    # Match lines that start with a number, dot, and space, followed by content
+    match: "^\\s*\\d+\\. (.+)"
+    # Add short pause before list item
+    replacement: '<break time=\"200ms\"/>\1'
+    # Documentation
+    description: "Add a short pause before ordered list items"
+
+
+  - name: unordered_list
+    # Match unordered list items, allowing optional leading spaces
+    match: "^\\s*- (.+)"
+    # Insert a short pause before each list item
+    replacement: '<break time=\"200ms\"/>\1'
+    # Documentation
+    description: "Add a short pause before unordered list items"
+
+
+  - name: bold_and_italic_text
+    # Match bold+italic Markdown (***text***)
+    match: "\\*\\*\\*(.+?)\\*\\*\\*"
+    # Wrap in strong emphasis SSML tag
+    replacement: '<emphasis level=\"strong\">\1</emphasis>'
+    # Documentation
+    description: "Emphasise bold and italic text"
+
+
+  - name: bold_text
+    # Match bold Markdown (**text**)
+    match: "\\*\\*(.+?)\\*\\*"
+    # Wrap in strong emphasis SSML tag
+    replacement: '<emphasis level=\"strong\">\1</emphasis>'
+    # Documentation
+    description: "Emphasise bold text"
+
+
+  - name: italicized_text
+    # Match italic Markdown (*text*)
+    match: '(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)'
+    # Wrap in SSML tag to soften volume
+    replacement: '<prosody volume="x-soft">\1</prosody>'
+    # Documentation
+    description: "Whisper or soften italicized text"
+
+
+  - name: horizontal_rule
+    # Match a line with only '---'
+    match: "^---$"
+    # Insert a long 800ms pause
+    replacement: '<break time=\"800ms\"/>'
+    # Documentation
+    description: "Long break for horizontal rule"
