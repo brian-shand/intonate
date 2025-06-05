@@ -32,7 +32,10 @@ for line in lines:
 
 # --- WRITE OUTPUT FILE ---
 os.makedirs(os.path.dirname(args.output), exist_ok=True)
-with open(args.output, 'w') as output_file:
+
+with open(args.output, 'w', encoding='utf-8') as output_file:
+    output_file.write('<speak>\n')
     output_file.writelines(output_lines)
+    output_file.write('\n</speak>')
 
 print(f"✅ Intonate processing complete.\nInput: {args.input}\nOutput: {args.output}")
