@@ -27,7 +27,7 @@ for line in lines:
     for rule in rules:
         pattern = re.compile(rule['match'])
         if pattern.search(line):
-            line = pattern.sub(rule['replacement'], line)
+            line = pattern.sub(rule['tag'], line)
     output_lines.append(line)
 
 # --- WRITE OUTPUT FILE ---

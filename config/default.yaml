@@ -3,7 +3,7 @@ rules:
     # Match H1 lines that start with '# '
     match: "^# (.+)"
     # Insert a 500ms pause before the captured heading text
-    replacement: '<break time=\"500ms\"/>\1'
+    tag: '<break time=\"500ms\"/>\1'
     # Documentation
     description: "Add a longer 500ms pause before H1 (Title) headings"
 
@@ -12,7 +12,7 @@ rules:
     # Match H2 lines that start with '## '
     match: "^## (.+)"
     # Insert a 300ms pause before the subheading
-    replacement: '<break time=\"300ms\"/>\1'
+    tag: '<break time=\"300ms\"/>\1'
     # Documentation
     description: "Add a quicker 300ms pause before H2 (subheading -large) headings"
 
@@ -21,16 +21,43 @@ rules:
     # Match H3 lines that start with '### '
     match: "^### (.+)"
     # Insert a 200ms pause before the smaller subheading
-    replacement: '<break time=\"200ms\"/>\1'
+    tag: '<break time=\"200ms\"/>\1'
     # Documentation
     description: "Add a quick 200ms pause before H3 (subheading -smaller) headings"
+
+
+  - name: heading_level_4
+    # Match H4 lines that start with '#### '
+    match: "^#### (.+)"
+    # Insert a 150ms pause before the smaller subheading
+    tag: '<break time="150ms"/>\1'
+    # Documentation
+    description: "Pause before H4 heading"
+
+
+  - name: heading_level_5
+  # Match H5 lines that start with '##### '
+    match: "^##### (.+)"
+    # Insert a 100ms pause before the smaller subheading
+    tag: '<break time="100ms"/>\1'
+    # Documentation
+    description: "Pause before H5 heading"
+
+
+  - name: heading_level_6
+  # Match H6 lines that start with '###### '
+    match: "^###### (.+)"
+    # Insert a 100ms pause before the smaller subheading
+    tag: '<break time="100ms"/>\1'
+    # Documentation
+    description: "Pause before H6 heading"
 
 
   - name: blockquote
     # Match lines that start with '>' followed by optional space and content
     match: "^> ?(.+)"
     # Lower pitch and slow slightly for quoted tone
-    replacement: '<prosody pitch=\"low\" rate=\"slow\">\1</prosody>'
+    tag: '<prosody pitch=\"low\" rate=\"slow\">\1</prosody>'
     # Documentation
     description: "Use lower pitch and slower rate for blockquote text"
 
@@ -39,7 +66,7 @@ rules:
     # Match lines that start with a number, dot, and space, followed by content
     match: "^\\s*\\d+\\. (.+)"
     # Add short pause before list item
-    replacement: '<break time=\"200ms\"/>\1'
+    tag: '<break time=\"200ms\"/>\1'
     # Documentation
     description: "Add a short pause before ordered list items"
 
@@ -48,7 +75,7 @@ rules:
     # Match unordered list items, allowing optional leading spaces
     match: "^\\s*- (.+)"
     # Insert a short pause before each list item
-    replacement: '<break time=\"200ms\"/>\1'
+    tag: '<break time=\"200ms\"/>\1'
     # Documentation
     description: "Add a short pause before unordered list items"
 
@@ -57,7 +84,7 @@ rules:
     # Match bold+italic Markdown (***text***)
     match: "\\*\\*\\*(.+?)\\*\\*\\*"
     # Wrap in strong emphasis SSML tag
-    replacement: '<emphasis level=\"strong\">\1</emphasis>'
+    tag: '<emphasis level=\"strong\">\1</emphasis>'
     # Documentation
     description: "Emphasise bold and italic text"
 
@@ -66,7 +93,7 @@ rules:
     # Match bold Markdown (**text**)
     match: "\\*\\*(.+?)\\*\\*"
     # Wrap in strong emphasis SSML tag
-    replacement: '<emphasis level=\"strong\">\1</emphasis>'
+    tag: '<emphasis level=\"strong\">\1</emphasis>'
     # Documentation
     description: "Emphasise bold text"
 
@@ -75,7 +102,7 @@ rules:
     # Match italic Markdown (*text*)
     match: '(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)'
     # Wrap in SSML tag to soften volume
-    replacement: '<prosody volume="x-soft">\1</prosody>'
+    tag: '<prosody volume="x-soft">\1</prosody>'
     # Documentation
     description: "Whisper or soften italicized text"
 
@@ -84,6 +111,23 @@ rules:
     # Match a line with only '---'
     match: "^---$"
     # Insert a long 800ms pause
-    replacement: '<break time=\"800ms\"/>'
+    tag: '<break time=\"800ms\"/>'
     # Documentation
     description: "Long break for horizontal rule"
+  
+
+  # Optional: read both title and URL (disabled)
+  # - name: markdown_link_full
+  # Match title URL link Markdown [title] ('https://www.example.com')
+  #  match: "\\[([^\\]]+)\\]\\(([^\\)]+)\\)"
+  #  tag: '\1 (link: \2)'
+  # Documentation
+  #  description: "Read link text and URL aloud"
+
+  
+  - name: markdown_link_skip_url
+    # Match title URL only Markdown [title] ('https://www.example.com')
+    match: "\\[([^\\]]+)\\]\\(([^\\)]+)\\)"
+    # Read link title text only
+    tag: '\1'
+    description: "Read only the link text, not the URL"
