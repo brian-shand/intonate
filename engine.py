@@ -1,41 +1,78 @@
-import re
-import yaml
-import os
 import argparse
+import yaml
+import re
 
-# --- CLI ARGUMENT PARSING ---
-parser = argparse.ArgumentParser(description="Intonate: Markdown to SSML processor")
+# --- PARSE CLI ARGS ---
+parser = argparse.ArgumentParser(description="Intonate: Markdown → SSML engine")
 parser.add_argument('--input', required=True, help='Path to input Markdown file')
-parser.add_argument('--config', required=True, help='Path to YAML config file')
-parser.add_argument('--output', required=True, help='Path to write processed output')
+parser.add_argument('--config', required=True, help='Path to YAML config with SSML rules')
+parser.add_argument('--output', required=True, help='Path to output SSML file')
+parser.add_argument('--profile', default='core', choices=['core', 'extended'],
+                    help="Which SSML profile to use: 'core' or 'extended'. Default is 'core'.")
 args = parser.parse_args()
 
-# --- LOAD CONFIG ---
-with open(args.config, 'r') as config_file:
-    config = yaml.safe_load(config_file)
+# --- READ INPUT FILE ---
+with open(args.input, 'r') as f:
+    text = f.read()
+
+# --- LOAD YAML RULES ---
+with open(args.config, 'r') as f:
+    config = yaml.safe_load(f)
 
 rules = config.get('rules', [])
 
-# --- READ INPUT FILE ---
-with open(args.input, 'r') as input_file:
-    lines = input_file.readlines()
+# --- VALIDATE RULES ---
+print("🔍 Validating rules...")
 
-output_lines = []
+for rule in rules:
+    name = rule.get('name', '<unnamed>')
+    match = rule.get('match')
+    tag = rule.get('tag')
+
+    # Validate match exists and compiles
+    if not match:
+        raise ValueError(f"❌ Rule '{name}' is missing a 'match' pattern.")
+    try:
+        re.compile(match)
+    except re.error as e:
+        raise ValueError(f"❌ Rule '{name}' has invalid regex: {e}")
+
+    # Validate tag is a string
+    if not isinstance(tag, str) or tag.strip() == '':
+        raise ValueError(f"❌ Rule '{name}' has an empty or invalid 'tag'.")
+
+    # Warn if rule uses capture group but tag does not reference \1
+    if '(' in match and '\\1' not in tag:
+        print(f"⚠️ Warning: Rule '{name}' has a capture group but tag has no '\\1' reference.")
+
+print("✅ Rule validation complete.\n")
+
 
 # --- APPLY RULES ---
-for line in lines:
-    for rule in rules:
-        pattern = re.compile(rule['match'])
-        if pattern.search(line):
-            line = pattern.sub(rule['tag'], line)
-    output_lines.append(line)
+selected_profile = args.profile
+
+for rule in rules:
+    rule_profile = rule.get('profile', 'core')
+    if selected_profile == 'core' and rule_profile != 'core':
+        continue
+
+    print(f"Applying rule: {rule['name']}")
+
+    pattern = re.compile(rule['match'], re.MULTILINE)
+    new_text = pattern.sub(rule['tag'], text)
+
+    if new_text != text:
+        print(f"✅ Rule '{rule['name']}' matched and made a change.")
+
+    text = new_text
+
+# --- WRAP IN <speak> TAG ---
+ssml_output = f"<speak>\n{text}\n</speak>"
 
 # --- WRITE OUTPUT FILE ---
-os.makedirs(os.path.dirname(args.output), exist_ok=True)
+with open(args.output, 'w') as f:
+    f.write(ssml_output)
 
-with open(args.output, 'w', encoding='utf-8') as output_file:
-    output_file.write('<speak>\n')
-    output_file.writelines(output_lines)
-    output_file.write('\n</speak>')
-
-print(f"✅ Intonate processing complete.\nInput: {args.input}\nOutput: {args.output}")
+print("✅ Intonate processing complete.")
+print(f"Input: {args.input}")
+print(f"Output: {args.output}")

@@ -1,133 +1,97 @@
+# Intonate SSML Tagging Rules
+#
+# Each rule contains:
+# - name: a unique identifier
+# - match: a regex pattern to find in basic Markdown (e.g., '##', '*')
+# - tag: the SSML or text to insert using regex backreferences
+# - description: a brief explanation of what the rule does
+# - profile: either 'core' or 'extended'
+#
+# Profile types:
+# - core: safe, basic SSML (e.g., <break>, <emphasis>) — default level
+# - extended: richer or experimental SSML (e.g., <prosody>, <voice>)
+
 rules:
   - name: heading_level_1
-    # Match H1 lines that start with '# '
     match: "^# (.+)"
-    # Insert a 500ms pause before the captured heading text
-    tag: '<break time=\"500ms\"/>\1'
-    # Documentation
+    tag: '<break time="500ms"/>\1'
     description: "Add a longer 500ms pause before H1 (Title) headings"
-
+    profile: core
 
   - name: heading_level_2
-    # Match H2 lines that start with '## '
     match: "^## (.+)"
-    # Insert a 300ms pause before the subheading
-    tag: '<break time=\"300ms\"/>\1'
-    # Documentation
-    description: "Add a quicker 300ms pause before H2 (subheading -large) headings"
-
+    tag: '<break time="300ms"/>\1'
+    description: "Add a quicker 300ms pause before H2 (subheading - large)"
+    profile: core
 
   - name: heading_level_3
-    # Match H3 lines that start with '### '
     match: "^### (.+)"
-    # Insert a 200ms pause before the smaller subheading
-    tag: '<break time=\"200ms\"/>\1'
-    # Documentation
-    description: "Add a quick 200ms pause before H3 (subheading -smaller) headings"
-
+    tag: '<break time="200ms"/>\1'
+    description: "Add a quick 200ms pause before H3 (subheading - smaller)"
+    profile: core
 
   - name: heading_level_4
-    # Match H4 lines that start with '#### '
     match: "^#### (.+)"
-    # Insert a 150ms pause before the smaller subheading
     tag: '<break time="150ms"/>\1'
-    # Documentation
     description: "Pause before H4 heading"
-
+    profile: core
 
   - name: heading_level_5
-  # Match H5 lines that start with '##### '
     match: "^##### (.+)"
-    # Insert a 100ms pause before the smaller subheading
     tag: '<break time="100ms"/>\1'
-    # Documentation
     description: "Pause before H5 heading"
-
+    profile: core
 
   - name: heading_level_6
-  # Match H6 lines that start with '###### '
     match: "^###### (.+)"
-    # Insert a 100ms pause before the smaller subheading
     tag: '<break time="100ms"/>\1'
-    # Documentation
     description: "Pause before H6 heading"
-
+    profile: core
 
   - name: blockquote
-    # Match lines that start with '>' followed by optional space and content
     match: "^> ?(.+)"
-    # Lower pitch and slow slightly for quoted tone
-    tag: '<prosody pitch=\"low\" rate=\"slow\">\1</prosody>'
-    # Documentation
+    tag: '<prosody pitch="low" rate="slow">\1</prosody>'
     description: "Use lower pitch and slower rate for blockquote text"
-
+    profile: extended
 
   - name: ordered_list
-    # Match lines that start with a number, dot, and space, followed by content
-    match: "^\\s*\\d+\\. (.+)"
-    # Add short pause before list item
-    tag: '<break time=\"200ms\"/>\1'
-    # Documentation
+    match: '^\s*\d+\. (.+)'
+    tag: '<break time="200ms"/>\1'
     description: "Add a short pause before ordered list items"
-
+    profile: core
 
   - name: unordered_list
-    # Match unordered list items, allowing optional leading spaces
-    match: "^\\s*- (.+)"
-    # Insert a short pause before each list item
-    tag: '<break time=\"200ms\"/>\1'
-    # Documentation
+    match: '^\s*- (.+)'
+    tag: '<break time="200ms"/>\1'
     description: "Add a short pause before unordered list items"
-
+    profile: core
 
   - name: bold_and_italic_text
-    # Match bold+italic Markdown (***text***)
-    match: "\\*\\*\\*(.+?)\\*\\*\\*"
-    # Wrap in strong emphasis SSML tag
-    tag: '<emphasis level=\"strong\">\1</emphasis>'
-    # Documentation
+    match: '\*\*\*(.+?)\*\*\*'
+    tag: '<emphasis level="strong">\1</emphasis>'
     description: "Emphasise bold and italic text"
-
+    profile: core
 
   - name: bold_text
-    # Match bold Markdown (**text**)
-    match: "\\*\\*(.+?)\\*\\*"
-    # Wrap in strong emphasis SSML tag
-    tag: '<emphasis level=\"strong\">\1</emphasis>'
-    # Documentation
+    match: '\*\*(.+?)\*\*'
+    tag: '<emphasis level="strong">\1</emphasis>'
     description: "Emphasise bold text"
-
+    profile: core
 
   - name: italicized_text
-    # Match italic Markdown (*text*)
     match: '(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)'
-    # Wrap in SSML tag to soften volume
     tag: '<prosody volume="x-soft">\1</prosody>'
-    # Documentation
     description: "Whisper or soften italicized text"
-
+    profile: extended
 
   - name: horizontal_rule
-    # Match a line with only '---'
     match: "^---$"
-    # Insert a long 800ms pause
-    tag: '<break time=\"800ms\"/>'
-    # Documentation
+    tag: '<break time="800ms"/>'
     description: "Long break for horizontal rule"
-  
+    profile: core
 
-  # Optional: read both title and URL (disabled)
-  # - name: markdown_link_full
-  # Match title URL link Markdown [title] ('https://www.example.com')
-  #  match: "\\[([^\\]]+)\\]\\(([^\\)]+)\\)"
-  #  tag: '\1 (link: \2)'
-  # Documentation
-  #  description: "Read link text and URL aloud"
-
-  
   - name: markdown_link_skip_url
-    # Match title URL only Markdown [title] ('https://www.example.com')
-    match: "\\[([^\\]]+)\\]\\(([^\\)]+)\\)"
-    # Read link title text only
+    match: '\[([^\]]+)\]\(([^)]+)\)'
     tag: '\1'
     description: "Read only the link text, not the URL"
+    profile: core
