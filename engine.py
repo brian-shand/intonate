@@ -60,7 +60,19 @@ for rule in rules:
     print(f"Applying rule: {rule['name']}")
     
     pattern = re.compile(rule['match'], re.MULTILINE)
-    new_text = pattern.sub(rule['tag'], text)
+
+    def safe_sub(match):
+        used_rules.append(rule['name']) # ✅ Log usage, even if content unchanged
+        
+        # Warn if no capture group and no \1 in tag
+        if '\\1' not in rule['tag']:
+            snippet = match.group(0).strip()
+            print(f"⚠️ Rule '{rule['name']}' matched content but discards it: \"{snippet}\"")
+            return snippet  # Output original content unchanged
+        return re.sub(pattern, rule['tag'], match.group(0))
+
+    new_text = pattern.sub(safe_sub, text)
+
 
     if new_text != text:
         print(f"✅ Rule '{rule['name']}' matched and made a change.")
