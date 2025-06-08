@@ -20,6 +20,7 @@ with open(args.config, 'r') as f:
     config = yaml.safe_load(f)
 
 rules = config.get('rules', [])
+used_rules = [] # Track which rules actually match input
 
 # --- VALIDATE RULES ---
 print("🔍 Validating rules...")
@@ -57,14 +58,27 @@ for rule in rules:
         continue
 
     print(f"Applying rule: {rule['name']}")
-
+    
     pattern = re.compile(rule['match'], re.MULTILINE)
     new_text = pattern.sub(rule['tag'], text)
 
     if new_text != text:
         print(f"✅ Rule '{rule['name']}' matched and made a change.")
+        used_rules.append(rule['name'])
 
     text = new_text
+
+# --- REPORT UNUSED RULES ---
+unused_rules = [
+    rule['name'] for rule in rules 
+    if rule['name'] not in used_rules 
+    and (selected_profile == 'extended' or rule.get('profile', 'core') == 'core')
+]
+
+if unused_rules:
+    print("\n⚠️ The following rules did not match anything in the input:")
+    for rule_name in unused_rules:
+        print(f"  - {rule_name}")
 
 # --- WRAP IN <speak> TAG ---
 ssml_output = f"<speak>\n{text}\n</speak>"
